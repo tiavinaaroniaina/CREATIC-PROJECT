@@ -28,6 +28,9 @@
 ```bash
 cd backend
 npm install
+
+cd frontend
+npm install -g @angular/cli
 ```
 
 ### Configurer les variables d'environnement
