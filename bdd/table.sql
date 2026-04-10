@@ -1,6 +1,6 @@
--- Créer la base
-CREATE DATABASE TEST-CREATIC;
--- Table Entity
+
+CREATE DATABASE "TEST-CREATIC";
+
 CREATE TABLE entity (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -8,7 +8,6 @@ CREATE TABLE entity (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table User
 CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
@@ -18,7 +17,6 @@ CREATE TABLE "user" (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table UserEntity (relation many-to-many)
 CREATE TABLE user_entity (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES "user"(id) ON DELETE CASCADE,
