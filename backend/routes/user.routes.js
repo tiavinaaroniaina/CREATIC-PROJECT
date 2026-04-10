@@ -11,10 +11,13 @@ router.get('/', userController.getAllUsers);
 // Get by ID
 router.get('/:id', userController.getUserById);
 
+// Check associations
+router.get('/:id/associations', userController.checkUserAssociations);
+
 // Update a user
 router.put('/:id', userController.updateUser);
 
-// Delete 
+// Delete
 router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

@@ -7,6 +7,7 @@ import { EntityService } from '../../services/entity.service';
 import { UserService } from '../../services/user.service';
 import { Entity } from '../../models/entity.model';
 import { User } from '../../models/user.model';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-user-entity-create',
@@ -21,6 +22,7 @@ export class UserEntityCreateComponent implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private confirmService = inject(ConfirmService);
 
   userId = 0;
   entityId = 0;
@@ -59,22 +61,31 @@ export class UserEntityCreateComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.error = null;
-    this.cdr.detectChanges();
-
-    this.userEntityService.create({
-      userId: this.userId,
-      entityId: this.entityId
-    }).subscribe({
-      next: () => {
-        this.router.navigate(['/user-entities']);
-      },
-      error: (err) => {
-        this.error = 'Erreur lors de la création de l\'association';
-        this.loading = false;
+    this.confirmService.open({
+      title: 'Confirmer la création',
+      message: 'Voulez-vous vraiment créer cette association ?',
+      confirmText: 'Créer',
+      cancelText: 'Annuler'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+        this.error = null;
         this.cdr.detectChanges();
-        console.error(err);
+
+        this.userEntityService.create({
+          userId: this.userId,
+          entityId: this.entityId
+        }).subscribe({
+          next: () => {
+            this.router.navigate(['/user-entities']);
+          },
+          error: (err) => {
+            this.error = 'Erreur lors de la création de l\'association';
+            this.loading = false;
+            this.cdr.detectChanges();
+            console.error(err);
+          }
+        });
       }
     });
   }

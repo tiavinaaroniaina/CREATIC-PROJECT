@@ -91,3 +91,41 @@ h1 {
   background-color: #f8d7da;
   border-radius: 4px;
 }
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form-control {
+  padding-right: 45px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  color: #333;
+}
+
+.password-toggle:focus {
+  outline: 2px solid #007bff;
+  border-radius: 4px;
+}
+
+.error small {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.875rem;
+}

@@ -65,9 +65,6 @@ Le backend sera accessible sur **http://localhost:5000**
 # Mode développement
 ng serve
 
-# Ou avec npm
-npm start
-```
 
 Le frontend sera accessible sur **http://localhost:4200**
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { EntityService } from '../../services/entity.service';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-entity-create',
@@ -15,6 +16,7 @@ export class EntityCreateComponent {
   private entityService = inject(EntityService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private confirmService = inject(ConfirmService);
 
   name = '';
   loading = false;
@@ -27,19 +29,28 @@ export class EntityCreateComponent {
       return;
     }
 
-    this.loading = true;
-    this.error = null;
-    this.cdr.detectChanges();
-
-    this.entityService.create({ name: this.name }).subscribe({
-      next: () => {
-        this.router.navigate(['/entities']);
-      },
-      error: (err) => {
-        this.error = 'Erreur lors de la création de l\'entité';
-        this.loading = false;
+    this.confirmService.open({
+      title: 'Confirmer la création',
+      message: 'Voulez-vous vraiment créer cette entité ?',
+      confirmText: 'Créer',
+      cancelText: 'Annuler'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+        this.error = null;
         this.cdr.detectChanges();
-        console.error(err);
+
+        this.entityService.create({ name: this.name }).subscribe({
+          next: () => {
+            this.router.navigate(['/entities']);
+          },
+          error: (err) => {
+            this.error = 'Erreur lors de la création de l\'entité';
+            this.loading = false;
+            this.cdr.detectChanges();
+            console.error(err);
+          }
+        });
       }
     });
   }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Entity } from '../../models/entity.model';
 import { EntityService } from '../../services/entity.service';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-entity-edit',
@@ -17,6 +18,7 @@ export class EntityEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private confirmService = inject(ConfirmService);
 
   entity: Entity | null = null;
   name = '';
@@ -56,18 +58,27 @@ export class EntityEditComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.error = null;
+    this.confirmService.open({
+      title: 'Confirmer la modification',
+      message: 'Voulez-vous vraiment modifier cette entité ?',
+      confirmText: 'Modifier',
+      cancelText: 'Annuler'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+        this.error = null;
 
-    this.entityService.update(this.entityId, { name: this.name }).subscribe({
-      next: () => {
-        this.router.navigate(['/entities']);
-      },
-      error: (err) => {
-        this.error = 'Erreur lors de la mise à jour de l\'entité';
-        this.loading = false;
-        this.cdr.detectChanges();
-        console.error(err);
+        this.entityService.update(this.entityId, { name: this.name }).subscribe({
+          next: () => {
+            this.router.navigate(['/entities']);
+          },
+          error: (err) => {
+            this.error = 'Erreur lors de la mise à jour de l\'entité';
+            this.loading = false;
+            this.cdr.detectChanges();
+            console.error(err);
+          }
+        });
       }
     });
   }

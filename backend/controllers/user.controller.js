@@ -104,11 +104,44 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
+    // Vérifier si l'utilisateur existe
+    const user = await pool.query('SELECT * FROM "user" WHERE id = $1', [id]);
+    if (user.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Vérifier s'il y a des associations dans user_entity
+    const associations = await pool.query('SELECT * FROM user_entity WHERE user_id = $1', [id]);
+    const hasAssociations = associations.rows.length > 0;
+
+    // Supprimer les associations dans la table de liaison
+    if (hasAssociations) {
+      await pool.query('DELETE FROM user_entity WHERE user_id = $1', [id]);
+    }
+
+    // Supprimer l'utilisateur
     const result = await pool.query('DELETE FROM "user" WHERE id = $1 RETURNING id', [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-    res.status(204).send(); 
+
+    res.status(200).json({
+      message: hasAssociations
+        ? 'Utilisateur supprimé ainsi que ses associations'
+        : 'Utilisateur supprimé'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Check associations
+exports.checkUserAssociations = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM user_entity WHERE user_id = $1', [id]);
+    res.status(200).json({ count: parseInt(result.rows[0].count) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

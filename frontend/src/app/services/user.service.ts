@@ -26,7 +26,11 @@ export class UserService {
     return this.http.put<User>(`${this.apiUrl}/${id}`, user);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  checkAssociations(id: number): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.apiUrl}/${id}/associations`);
   }
 }

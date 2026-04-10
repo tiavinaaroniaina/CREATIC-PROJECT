@@ -8,6 +8,7 @@ import { UserService } from '../../services/user.service';
 import { EntityService } from '../../services/entity.service';
 import { User } from '../../models/user.model';
 import { Entity } from '../../models/entity.model';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-user-entity-list',
@@ -22,6 +23,7 @@ export class UserEntityListComponent implements OnInit {
   private entityService = inject(EntityService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private confirmService = inject(ConfirmService);
 
   userEntities: UserEntity[] = [];
   users: User[] = [];
@@ -72,14 +74,23 @@ export class UserEntityListComponent implements OnInit {
   }
 
   deleteUserEntity(id: number): void {
-    this.userEntityService.delete(id).subscribe({
-      next: () => {
-        this.userEntities = this.userEntities.filter(ue => ue.id !== id);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Erreur lors de la suppression:', err);
-        alert('Erreur lors de la suppression');
+    this.confirmService.open({
+      title: 'Confirmer la suppression',
+      message: 'Voulez-vous vraiment supprimer cette association ? Cette action est irréversible.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.userEntityService.delete(id).subscribe({
+          next: () => {
+            this.userEntities = this.userEntities.filter(ue => ue.id !== id);
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('Erreur lors de la suppression:', err);
+            alert('Erreur lors de la suppression');
+          }
+        });
       }
     });
   }

@@ -8,6 +8,7 @@ import { EntityService } from '../../services/entity.service';
 import { UserService } from '../../services/user.service';
 import { Entity } from '../../models/entity.model';
 import { User } from '../../models/user.model';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-user-entity-edit',
@@ -23,6 +24,7 @@ export class UserEntityEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private confirmService = inject(ConfirmService);
 
   userEntity: UserEntity | null = null;
   userId = 0;
@@ -79,21 +81,30 @@ export class UserEntityEditComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.error = null;
+    this.confirmService.open({
+      title: 'Confirmer la modification',
+      message: 'Voulez-vous vraiment modifier cette association ?',
+      confirmText: 'Modifier',
+      cancelText: 'Annuler'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+        this.error = null;
 
-    this.userEntityService.update(this.userEntityId, {
-      userId: this.userId,
-      entityId: this.entityId
-    }).subscribe({
-      next: () => {
-        this.router.navigate(['/user-entities']);
-      },
-      error: (err) => {
-        this.error = 'Erreur lors de la mise à jour de l\'association';
-        this.loading = false;
-        this.cdr.detectChanges();
-        console.error(err);
+        this.userEntityService.update(this.userEntityId, {
+          userId: this.userId,
+          entityId: this.entityId
+        }).subscribe({
+          next: () => {
+            this.router.navigate(['/user-entities']);
+          },
+          error: (err) => {
+            this.error = 'Erreur lors de la mise à jour de l\'association';
+            this.loading = false;
+            this.cdr.detectChanges();
+            console.error(err);
+          }
+        });
       }
     });
   }

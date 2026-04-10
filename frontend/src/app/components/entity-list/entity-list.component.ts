@@ -4,6 +4,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { Entity } from '../../models/entity.model';
 import { EntityService } from '../../services/entity.service';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-entity-list',
@@ -16,6 +17,7 @@ export class EntityListComponent implements OnInit {
   private entityService = inject(EntityService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private confirmService = inject(ConfirmService);
 
   entities: Entity[] = [];
   error: string | null = null;
@@ -46,14 +48,56 @@ export class EntityListComponent implements OnInit {
   }
 
   deleteEntity(id: number): void {
-    this.entityService.delete(id).subscribe({
-      next: () => {
-        this.entities = this.entities.filter(e => e.id !== id);
-        this.cdr.detectChanges();
+    // Vérifier d'abord les associations
+    this.entityService.checkAssociations(id).subscribe({
+      next: (assocData) => {
+        const hasAssociations = assocData.count > 0;
+
+        this.confirmService.open({
+          title: 'Confirmer la suppression',
+          message: hasAssociations
+            ? `Cette entité est associée à ${assocData.count} utilisateur(s). Voulez-vous vraiment la supprimer ? Ses associations seront également supprimées.`
+            : 'Voulez-vous vraiment supprimer cette entité ? Cette action est irréversible.',
+          confirmText: 'Supprimer',
+          cancelText: 'Annuler'
+        }).subscribe(confirmed => {
+          if (confirmed) {
+            this.entityService.delete(id).subscribe({
+              next: (response) => {
+                this.entities = this.entities.filter(e => e.id !== id);
+                this.cdr.detectChanges();
+                alert(response.message);
+              },
+              error: (err) => {
+                console.error('Erreur lors de la suppression:', err);
+                alert('Erreur lors de la suppression');
+              }
+            });
+          }
+        });
       },
       error: (err) => {
-        console.error('Erreur lors de la suppression:', err);
-        alert('Erreur lors de la suppression');
+        console.error('Erreur lors de la vérification des associations:', err);
+        // Continuer avec le message par défaut si la vérification échoue
+        this.confirmService.open({
+          title: 'Confirmer la suppression',
+          message: 'Voulez-vous vraiment supprimer cette entité ? Cette action est irréversible.',
+          confirmText: 'Supprimer',
+          cancelText: 'Annuler'
+        }).subscribe(confirmed => {
+          if (confirmed) {
+            this.entityService.delete(id).subscribe({
+              next: () => {
+                this.entities = this.entities.filter(e => e.id !== id);
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.error('Erreur lors de la suppression:', err);
+                alert('Erreur lors de la suppression');
+              }
+            });
+          }
+        });
       }
     });
   }
