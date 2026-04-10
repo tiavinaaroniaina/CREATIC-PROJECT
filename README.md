@@ -14,8 +14,8 @@
 
 ### environnements
 
-- **Node.js** (v18+)
-- **npm** 
+- **Node.js** 20.19.5
+- **angular** 21.2.7
 - **PostgreSQL** (base de données installée et configurée)
 
 ---
@@ -30,7 +30,7 @@ cd backend
 npm install
 
 cd frontend
-npm install -g @angular/cli
+npm install 
 ```
 
 ### Configurer les variables d'environnement
@@ -58,14 +58,6 @@ Le backend sera accessible sur **http://localhost:5000**
 
 ---
 
-## 3️⃣ Frontend
-
-### Installer les dépendances
-
-```bash
-cd frontend
-npm install
-```
 
 ### Démarrer le frontend
 
@@ -78,12 +70,6 @@ npm start
 ```
 
 Le frontend sera accessible sur **http://localhost:4200**
-
-### Construire pour la production
-
-```bash
-ng build
-```
 
 
 ## 👨‍💻 Développement
@@ -104,7 +90,5 @@ Accédez à l'application sur **http://localhost:4200**
 
 ---
 
-## 📄 License
 
-ISC
 
